@@ -35,7 +35,7 @@ public class AuthService {
     User newUser = new User();
     newUser.setEmail(regUserDto.getEmail());
     newUser.setName(regUserDto.getName());
-    newUser.setPassword(/*passwordEncoder.encode(*/regUserDto.getPassword());
+    newUser.setPassword(passwordEncoder.encode(regUserDto.getPassword()));
     try {
       userRepo.save(newUser);
     } catch (DataIntegrityViolationException e) {
@@ -46,7 +46,7 @@ public class AuthService {
   public JwtResponse login(@NonNull JwtRequest authRequest) throws AuthException {
     final User user = userRepo.findByEmail(authRequest.getLogin())
         .orElseThrow(() -> new AuthException("Пользователь не найден"));
-    if (user.getPassword().equals(authRequest.getPassword())) {
+    if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
       final String accessToken = jwtProvider.generateAccessToken(user);
       final String refreshToken = jwtProvider.generateRefreshToken(user);
       refreshStorage.put(user.getEmail(), refreshToken);
