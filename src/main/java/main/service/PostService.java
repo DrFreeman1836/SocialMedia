@@ -46,7 +46,7 @@ public class PostService {
     }
   }
 
-  public List<PostDto> findPostsByUser(Long idUser) {
+  public List<PostDto> findPostsByUser(Long idUser) throws Exception {
     User user = userRepo.findById(idUser).orElseThrow(() -> new UserException("Пользователь не найден"));
     return postRepo.findPostByUser(user).stream().map(post -> {
       return PostDto.builder().title(post.getTitle()).text(post.getText()).build();

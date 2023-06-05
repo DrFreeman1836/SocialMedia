@@ -48,4 +48,7 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
   private List<Post> listPosts;
 
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
+  private List<Friends> listFriends;
+
 }
