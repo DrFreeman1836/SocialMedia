@@ -12,6 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -33,13 +35,13 @@ public class SecurityConfig {
         .csrf().disable()
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
-        .authorizeHttpRequests(
-            authz -> authz
-                .antMatchers("/api/v1/auth/login", "/api/v1/auth/token", "/api/v1/auth/reg").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-        ).build();
+        .authorizeRequests()
+        .antMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+        .antMatchers("/api/v1/auth/login", "/api/v1/auth/token", "/api/v1/auth/reg").permitAll()
+        .anyRequest().authenticated()
+        .and()
+        .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
   }
 
 }

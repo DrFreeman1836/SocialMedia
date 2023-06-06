@@ -1,5 +1,6 @@
 package main.model;
 
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -43,5 +44,11 @@ public class Post {
    */
   @Column(nullable = false)
   private String text;
+
+  /**
+   * Время создания поста
+   */
+  @Column(nullable = false)
+  private Date date;
 
 }

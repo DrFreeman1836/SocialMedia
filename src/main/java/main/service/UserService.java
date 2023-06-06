@@ -34,19 +34,13 @@ public class UserService {
   public List<UserDto> findMyFriends()  throws Exception {
     User user = userRepo.findByEmail(String.valueOf(authService.getAuthInfo().getPrincipal()))
         .orElseThrow(() -> new UserException("Пользователь не определен"));
-    List<UserDto> listFriends = new ArrayList<>();
-   listFriends.addAll(user.getListFriends().stream()
+
+    return user.getListFriends().stream()
         .filter(f -> f.getStatus().equals(Status.ACCEPTED))
         .map(f -> {
           return UserDto.builder().id(f.getFrendUser().getId()).name(f.getFrendUser().getName())
               .build();
-        }).toList());
-    listFriends.addAll(friendRepo.findMyFriends(user.getId()).stream()
-        .map(f -> {
-          return UserDto.builder().id(f.getUser().getId()).name(f.getUser().getName()).build();
-        }).toList());
-
-    return listFriends;
+        }).toList();
   }
 
   /**
@@ -57,16 +51,17 @@ public class UserService {
   public Set<UserDto> findMySubscriptions()  throws Exception {
     User user = userRepo.findByEmail(String.valueOf(authService.getAuthInfo().getPrincipal()))
         .orElseThrow(() -> new UserException("Пользователь не определен"));
-    Set<UserDto> listSubscriptions = new HashSet<>();
-    listSubscriptions.addAll(user.getListFriends().stream()
+    return new HashSet<>(user.getListFriends().stream()
         .map(f -> {
-          return UserDto.builder().id(f.getFrendUser().getId()).name(f.getFrendUser().getName()).build();
+          return UserDto.builder().id(f.getFrendUser().getId()).name(f.getFrendUser().getName())
+              .build();
         }).toList());
-    listSubscriptions.addAll(friendRepo.findMySubscriptions(user.getId()).stream()
-        .map(f -> {
-          return UserDto.builder().id(f.getUser().getId()).name(f.getUser().getName()).build();
-        }).toList());
-    return listSubscriptions;
+  }
+
+  public Set<User> getMySubscriptions(Long idUser)  throws Exception {
+    User user = userRepo.findById(idUser).orElseThrow(() -> new UserException("Пользователь не найден"));
+    return new HashSet<>(user.getListFriends().stream()
+        .map(Friends::getFrendUser).toList());
   }
 
   /**
@@ -98,22 +93,33 @@ public class UserService {
     if (friends.isEmpty()) {
       throw new UserException("Заявка не найдена");
     }
+    Friends newFriend = new Friends();
+    newFriend.setUser(friends.get().getFrendUser());
+    newFriend.setFrendUser(friends.get().getUser());
+    newFriend.setStatus(Status.ACCEPTED);
+    friendRepo.save(newFriend);
+
     friends.get().setStatus(Status.ACCEPTED);
     friendRepo.flush();
   }
 
   /**
    * Удалить из друзей
-   * @param subscribeId id связи из таблицы FRIENDS
+   * @param friendId id пользователя которого удаляют из друзей
    * @throws Exception
    */
-  public void deleteFromFriends(Long subscribeId) throws Exception {
-    Optional<Friends> friends = friendRepo.findById(subscribeId);
-    if (friends.isEmpty()) {
-      throw new UserException("Заявка не найдена");
-    }
-    friends.get().setStatus(Status.DECLINED);
-    friendRepo.flush();
+  public void deleteFromFriends(Long friendId) throws Exception {
+    User user = userRepo.findByEmail(String.valueOf(authService.getAuthInfo().getPrincipal()))
+        .orElseThrow(() -> new UserException("Пользователь не определен"));
+    User userFriend = userRepo.findById(friendId).orElseThrow(() -> new UserException("Пользователь не найден"));
+    Optional<Friends> friends = friendRepo.findByUserAndFrendUser(user, userFriend);
+
+    Friends friends2 = friendRepo.findByUserAndFrendUser(friends.get().getFrendUser(), friends.get().getUser())
+        .orElseThrow(() -> new UserException("Заявка не найдена"));
+    friends2.setStatus(Status.DECLINED);
+    friendRepo.save(friends2);
+
+    friendRepo.delete(friends.get());
   }
 
 }

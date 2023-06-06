@@ -1,5 +1,7 @@
 package main.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +29,8 @@ public class UserController {
 
   private final UserService userService;
 
+  @Operation(summary = "Get posts by user id")
+  @SecurityRequirement(name = "Bearer Authentication")
   @GetMapping("/{id}/posts")
   public ResponseEntity<Map> viewPostByUser(@PathVariable Long id,
       @RequestParam Integer limit, @RequestParam Integer offset) {
@@ -38,6 +42,8 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Get list my friends")
+  @SecurityRequirement(name = "Bearer Authentication")
   @GetMapping("/friends")
   public ResponseEntity<Map> getMyFriends() {
     try {
@@ -48,6 +54,8 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Get list my subscribe")
+  @SecurityRequirement(name = "Bearer Authentication")
   @GetMapping("/subscribe")
   public ResponseEntity<Map> getMySubscriptions() {
     try {
@@ -58,6 +66,8 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Send friend request")
+  @SecurityRequirement(name = "Bearer Authentication")
   @PostMapping("/friends/{id}")
   public ResponseEntity<Map> requestOfFriends(@PathVariable Long id) {
     try {
@@ -68,6 +78,8 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Confirm friend request")
+  @SecurityRequirement(name = "Bearer Authentication")
   @PutMapping("/subscribe/{id}")
   public ResponseEntity<Map> acceptRequestOfFriends(@PathVariable Long id) {
     try {
@@ -78,7 +90,9 @@ public class UserController {
     }
   }
 
-  @DeleteMapping("/subscribe/{id}")
+  @Operation(summary = "Remove from friends")
+  @SecurityRequirement(name = "Bearer Authentication")
+  @DeleteMapping("/friends/{id}")
   public ResponseEntity<Map> deleteFromFriends(@PathVariable Long id) {
     try {
       userService.deleteFromFriends(id);

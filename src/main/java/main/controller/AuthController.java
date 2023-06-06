@@ -1,5 +1,7 @@
 package main.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.Map;
 import javax.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class AuthController {
 
   private final AuthService authService;
 
+  @Operation(summary = "User registration")
   @PostMapping("reg")
   public ResponseEntity<Map> register(@RequestBody RqRegUserDto regUserDto) {
     try {
@@ -31,6 +34,7 @@ public class AuthController {
     }
   }
 
+  @Operation(summary = "User login")
   @PostMapping("login")
   public ResponseEntity<Map> login(@RequestBody JwtRequest authRequest) {
     try {
