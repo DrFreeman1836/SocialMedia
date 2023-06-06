@@ -105,4 +105,14 @@ public class UserController {
     }
   }
 
+  @PostMapping("/{id}/message")
+  public ResponseEntity<RsBasic> sendMessage(@PathVariable Long id, @RequestParam(value = "text") String text) {
+    try {
+      userService.sendMessage(id, text);
+      return ResponseEntity.ok(RsBasic.getSuccessInstance());
+    } catch (Exception e) {
+      return ResponseEntity.status(400).body(RsBasic.getUnSuccessInstance(e.getMessage()));
+    }
+  }
+
 }

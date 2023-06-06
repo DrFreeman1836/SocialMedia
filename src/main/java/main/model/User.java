@@ -51,4 +51,7 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
   private List<Friends> listFriends;
 
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
+  private List<Messages> listMessages;
+
 }

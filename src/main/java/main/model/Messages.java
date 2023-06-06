@@ -1,10 +1,8 @@
 package main.model;
 
-import com.sun.istack.NotNull;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,34 +15,39 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "FRIENDS")
+@Table(name = "MESSAGES")
 @Getter
 @Setter
-public class Friends {
+public class Messages {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   /**
-   * Пользователь
+   * Тескт сообщения
+   */
+  @Column(nullable = false)
+  private String text;
+
+  /**
+   * Автор сообщения
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
+  @JoinColumn(name = "from_user_id", nullable = false)
   private User user;
 
   /**
-   * Друг пользолвателя
+   * Адресант сообщения
    */
   @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "frend_user", nullable = false)
-  private User frendUser;
+  @JoinColumn(name = "to_user_id", nullable = false)
+  private User toUser;
 
   /**
-   * Статус дружбы
+   * Время сообщения
    */
-  @Enumerated(EnumType.STRING)
-  @Column(columnDefinition = "enum('ACCEPTED', 'DECLINED') default 'DECLINED'", nullable = false)
-  private Status status;
+  @Column(nullable = false)
+  private Date date;
 
 }

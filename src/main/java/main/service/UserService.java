@@ -1,6 +1,7 @@
 package main.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -10,9 +11,11 @@ import lombok.RequiredArgsConstructor;
 import main.dto.response.UserDto;
 import main.exception.UserException;
 import main.model.Friends;
+import main.model.Messages;
 import main.model.Status;
 import main.model.User;
 import main.repository.FriendRepo;
+import main.repository.MessagesRepo;
 import main.repository.UserRepo;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +28,8 @@ public class UserService {
   private final AuthService authService;
 
   private final FriendRepo friendRepo;
+
+  private final MessagesRepo messagesRepo;
 
   /**
    * Друзья пользователя
@@ -120,6 +125,22 @@ public class UserService {
     friendRepo.save(friends2);
 
     friendRepo.delete(friends.get());
+  }
+
+  public void sendMessage(Long idUser, String text) {
+    User user = userRepo.findByEmail(String.valueOf(authService.getAuthInfo().getPrincipal()))
+        .orElseThrow(() -> new UserException("Пользователь не определен"));
+    User addresseeUser = userRepo.findById(idUser).orElseThrow(() -> new UserException("Пользователь не найден"));
+    Optional<Friends> friends = friendRepo.findByUserAndFrendUser(user, addresseeUser);
+    if (friends.isEmpty() || friends.get().getStatus().equals(Status.DECLINED)) {
+      throw new UserException("Пользователь не является вашим другом");
+    }
+    Messages mes = new Messages();
+    mes.setDate(new Date());
+    mes.setText(text);
+    mes.setUser(user);
+    mes.setToUser(addresseeUser);
+    messagesRepo.save(mes);
   }
 
 }
