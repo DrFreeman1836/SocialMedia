@@ -2,11 +2,14 @@ package main.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import main.dto.request.PostDto;
+import main.dto.response.RsBasic;
+import main.dto.response.RsPost;
+import main.dto.response.RsUser;
 import main.dto.response.UserDto;
 import main.service.PostService;
 import main.service.UserService;
@@ -32,73 +35,73 @@ public class UserController {
   @Operation(summary = "Get posts by user id")
   @SecurityRequirement(name = "Bearer Authentication")
   @GetMapping("/{id}/posts")
-  public ResponseEntity<Map> viewPostByUser(@PathVariable Long id,
+  public ResponseEntity<RsPost> viewPostByUser(@PathVariable Long id,
       @RequestParam Integer limit, @RequestParam Integer offset) {
     try {
-      List<PostDto> listPosts = postService.findPostsByUser(id);
-      return ResponseEntity.ok(Map.of("result", true, "posts", listPosts.stream().skip(offset).limit(limit)));
+      List<PostDto> listPosts = postService.findPostsByUser(id).stream().skip(offset).limit(limit).toList();
+      return ResponseEntity.ok(RsPost.getSuccessInstance(listPosts));
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsPost.getUnSuccessInstance(e.getMessage()));
     }
   }
 
   @Operation(summary = "Get list my friends")
   @SecurityRequirement(name = "Bearer Authentication")
   @GetMapping("/friends")
-  public ResponseEntity<Map> getMyFriends() {
+  public ResponseEntity<RsUser> getMyFriends() {
     try {
       List<UserDto> listFriends = userService.findMyFriends();
-      return ResponseEntity.ok(Map.of("result", true, "friends", listFriends));
+      return ResponseEntity.ok(RsUser.getSuccessInstance(listFriends));
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsUser.getUnSuccessInstance(e.getMessage()));
     }
   }
 
   @Operation(summary = "Get list my subscribe")
   @SecurityRequirement(name = "Bearer Authentication")
   @GetMapping("/subscribe")
-  public ResponseEntity<Map> getMySubscriptions() {
+  public ResponseEntity<RsUser> getMySubscriptions() {
     try {
       Set<UserDto> listFriends = userService.findMySubscriptions();
-      return ResponseEntity.ok(Map.of("result", true, "subscribe", listFriends));
+      return ResponseEntity.ok(RsUser.getSuccessInstance(new ArrayList<>(listFriends)));
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsUser.getUnSuccessInstance(e.getMessage()));
     }
   }
 
   @Operation(summary = "Send friend request")
   @SecurityRequirement(name = "Bearer Authentication")
   @PostMapping("/friends/{id}")
-  public ResponseEntity<Map> requestOfFriends(@PathVariable Long id) {
+  public ResponseEntity<RsBasic> requestOfFriends(@PathVariable Long id) {
     try {
       userService.requestOfFriends(id);
-      return ResponseEntity.ok(Map.of("result", true));
+      return ResponseEntity.ok(RsBasic.getSuccessInstance());
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsBasic.getUnSuccessInstance(e.getMessage()));
     }
   }
 
   @Operation(summary = "Confirm friend request")
   @SecurityRequirement(name = "Bearer Authentication")
   @PutMapping("/subscribe/{id}")
-  public ResponseEntity<Map> acceptRequestOfFriends(@PathVariable Long id) {
+  public ResponseEntity<RsBasic> acceptRequestOfFriends(@PathVariable Long id) {
     try {
       userService.acceptRequestOfFriends(id);
-      return ResponseEntity.ok(Map.of("result", true));
+      return ResponseEntity.ok(RsBasic.getSuccessInstance());
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsBasic.getUnSuccessInstance(e.getMessage()));
     }
   }
 
   @Operation(summary = "Remove from friends")
   @SecurityRequirement(name = "Bearer Authentication")
   @DeleteMapping("/friends/{id}")
-  public ResponseEntity<Map> deleteFromFriends(@PathVariable Long id) {
+  public ResponseEntity<RsBasic> deleteFromFriends(@PathVariable Long id) {
     try {
       userService.deleteFromFriends(id);
-      return ResponseEntity.ok(Map.of("result", true));
+      return ResponseEntity.ok(RsBasic.getSuccessInstance());
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsBasic.getUnSuccessInstance(e.getMessage()));
     }
   }
 

@@ -3,9 +3,10 @@ package main.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import main.dto.request.PostDto;
+import main.dto.response.RsBasic;
+import main.dto.response.RsPost;
 import main.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,48 +29,48 @@ public class PostController {
   @Operation(summary = "Add post")
   @SecurityRequirement(name = "Bearer Authentication")
   @PostMapping
-  public ResponseEntity<Map> addPost(@RequestBody PostDto postDto) {
+  public ResponseEntity<RsBasic> addPost(@RequestBody PostDto postDto) {
     try {
       postService.addPost(postDto);
-      return ResponseEntity.ok(Map.of("result", true));
+      return ResponseEntity.ok(RsBasic.getSuccessInstance());
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsBasic.getUnSuccessInstance(e.getMessage()));
     }
   }
 
   @Operation(summary = "Update post by id")
   @SecurityRequirement(name = "Bearer Authentication")
   @PutMapping("/{id}")
-  public ResponseEntity<Map> updatePost(@PathVariable Long id, @RequestBody PostDto postDto) {
+  public ResponseEntity<RsBasic> updatePost(@PathVariable Long id, @RequestBody PostDto postDto) {
     try {
       postService.updatePost(id, postDto);
-      return ResponseEntity.ok(Map.of("result", true));
+      return ResponseEntity.ok(RsBasic.getSuccessInstance());
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsBasic.getUnSuccessInstance(e.getMessage()));
     }
   }
 
   @Operation(summary = "Delete post by id")
   @SecurityRequirement(name = "Bearer Authentication")
   @DeleteMapping("/{id}")
-  public ResponseEntity<Map> updatePost(@PathVariable Long id) {
+  public ResponseEntity<RsBasic> updatePost(@PathVariable Long id) {
     try {
       postService.deletePost(id);
-      return ResponseEntity.ok(Map.of("result", true));
+      return ResponseEntity.ok(RsBasic.getSuccessInstance());
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsBasic.getUnSuccessInstance(e.getMessage()));
     }
   }
 
   @Operation(summary = "get post feed")
   @SecurityRequirement(name = "Bearer Authentication")
   @GetMapping("/feedPost")
-  public ResponseEntity<Map> getFeedPost(@RequestParam Integer limit, @RequestParam Integer offset) {
+  public ResponseEntity<RsPost> getFeedPost(@RequestParam Integer limit, @RequestParam Integer offset) {
     try {
-      List<PostDto> listPosts = postService.getFeedPost();
-      return ResponseEntity.ok(Map.of("result", true, "posts", listPosts.stream().skip(offset).limit(limit)));
+      List<PostDto> listPosts = postService.getFeedPost().stream().skip(offset).limit(limit).toList();
+      return ResponseEntity.ok(RsPost.getSuccessInstance(listPosts));
     } catch (Exception e) {
-      return ResponseEntity.status(400).body(Map.of("result", false, "error", e.getMessage()));
+      return ResponseEntity.status(400).body(RsPost.getUnSuccessInstance(e.getMessage()));
     }
   }
 
