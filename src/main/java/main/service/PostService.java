@@ -40,6 +40,7 @@ public class PostService {
     newPost.setTitle(postDto.getTitle());
     newPost.setUser(user);
     newPost.setDate(new Date());
+    newPost.setPhoto(postDto.getPhoto().getBytes());
     postRepo.save(newPost);
   }
 

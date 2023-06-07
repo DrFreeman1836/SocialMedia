@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -50,5 +51,9 @@ public class Post {
    */
   @Column(nullable = false)
   private Date date;
+
+  @Lob
+  @Column(nullable = false)
+  private byte[] photo;
 
 }
